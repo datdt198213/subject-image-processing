@@ -152,22 +152,56 @@ ret1,th1 = cv2.threshold(gray_image,127,255,cv2.THRESH_BINARY)
 ret2,th2 = cv2.threshold(gray_image,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 #Otsu's thresholding after Gaussian filtering
-blur = cv2.GaussianBlur(gray_image, (5,5) , 0)
-ret3, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+# blur = cv2.GaussianBlur(gray_image, (5,5) , 0)
+# ret3, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-images = [image, 0, th1, image, 0, th2, blur, 0, th3]
-titles = ['Original Noisy Image', 'Histogram', 'Global Thresholding (v = 127)',
-'Original Noisy Image', 'Histogram', "Otsu's Thresholding",
-'Gaussian filtered Image', 'Histogram', "Otsu's Thresholding"]
+# images = [image, 0, th1, image, 0, th2, blur, 0, th3]
+# titles = ['Original Noisy Image', 'Histogram', 'Global Thresholding (v = 127)',
+# 'Original Noisy Image', 'Histogram', "Otsu's Thresholding",
+# 'Gaussian filtered Image', 'Histogram', "Otsu's Thresholding"]
 
-for i in range(3):
-	plt.subplot(3,3,i*3+1), plt.imshow(images[i*3], 'gray')
-	plt.title(titles[i*3]), plt.xticks([]), plt.yticks([])
-	plt.subplot(3,3,i*3+2),plt.hist(images[i*3].ravel(),256)
-	plt.title(titles[i*3+1]), plt.xticks([]), plt.yticks([])
-	plt.subplot(3,3,i*3+3),plt.imshow(images[i*3+2],'gray')
-	plt.title(titles[i*3+2]), plt.xticks([]), plt.yticks([])
+# for i in range(3):
+# 	plt.subplot(3,3,i*3+1), plt.imshow(images[i*3], 'gray')
+# 	plt.title(titles[i*3]), plt.xticks([]), plt.yticks([])
+# 	plt.subplot(3,3,i*3+2),plt.hist(images[i*3].ravel(),256)
+# 	plt.title(titles[i*3+1]), plt.xticks([]), plt.yticks([])
+# 	plt.subplot(3,3,i*3+3),plt.imshow(images[i*3+2],'gray')
+# 	plt.title(titles[i*3+2]), plt.xticks([]), plt.yticks([])
+# plt.show()
+
+#####################################################################
+# avaraging
+# image = cv2.imread('blur_image.jfif')
+
+# scale_percent = 50
+# width =int(image.shape[0] * scale_percent / 100) 
+# height = int(image.shape[1] * scale_percent/ 100)
+# dimension = (width, height)
+# percent_image = cv2.resize(image, dimension, cv2.INTER_CUBIC)
+# kernel = np.ones((5,5), np.float32)/25
+# dst = cv2.filter2D(percent_image, -1, kernel)
+
+# plt.subplot(121), plt.imshow(percent_image), plt.title('Original')
+# plt.xticks([]), plt.yticks([])
+# plt.subplot(122), plt.imshow(dst), plt.title('Averaging')
+# plt.xticks([]), plt.yticks([])
+# plt.show()
+#####################################################################
+# blured
+image = cv2.imread('landscape-color.jpg')
+# blur = cv2.blur(image, (5,5))
+blur = cv2.GaussianBlur(image, (5,5),0)
+
+plt.subplot(121), plt.imshow(image), plt.title('Original')
+plt.xticks([]), plt.yticks([])
+plt.subplot(122), plt.imshow(blur),
+# plt.title('Blured')
+plt.title('Blured Gauss')
+plt.xticks([]), plt.yticks([])
 plt.show()
+
+#####################################################################
+
 #####################################################################
 # key end cv2 running
 cv2.waitKey(0)
