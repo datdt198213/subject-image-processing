@@ -1,69 +1,58 @@
-#import the required libraries
+from multipledispatch import dispatch
 import numpy as np 
 import matplotlib.pyplot as plt
 import cv2
 
-# %matplotlib inline
 image = cv2.imread('index.jpg')
 
-#####################################################################
-# converting color
-#converting image to Gray scale 
-# gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-#showing the grayscale image
-#cv2.imshow('gray_image', gray_image)
-
-#converting image to HSV format
-# hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-#showing the HSV image
-#cv2.imshow('hsv_image', hsv_image)
-
-#####################################################################
 #image saving
-# cv2.imwrite('gray_image.jpg', gray_image)
-# cv2.imwrite('hsv_image.jpg', hsv_image)
+def saveImage(image, file_name):
+	print("Save successfully!")
+	cv2.imwrite(file_name, image)
 
-#####################################################################
-#converting image to size (300, 300, 3)
-# smaller_image = cv2.resize(image, (300,300),cv2.INTER_AREA)
+# saveImage(image, 'Test.jpg')
 
-# print('Resized dimensions: ', smaller_image.shape)
-# cv2.imshow('smaller_image',smaller_image)
+#convert image color
+def convertColorImage(image, channel):
+	if(channel == "GRAY"):
+		cvt_color_image = cv2.cvtColor(src = image, cv2.COLOR_BGR2GRAY)	
+	if(channel == "HSV"):
+		cvt_color_image = cv2.cvtColor(src = image, cv2.COLOR_BGR2HSV)
+	return cvt_color_image
 
-#####################################################################
-# converting 20 percent
-# scale_percent = 20
-# width = int(image.shape[0] * scale_percent / 100)
-# height = int(image.shape[1] * scale_percent / 100)
-# dimension = (width, height)
+# gray_image = convertColorImage(image, "GRAY")
+# cv2.imshow("gray_image", gray_image)
 
-# _20_percent_image = cv2.resize(image, dimension, cv2.INTER_CUBIC)
-# cv2.imshow('_20_percent_image', _20_percent_image)
-# cv2.imwrite('20_percent_image.jpg', _20_percent_image)
+# Resize image
+@dispatch(np.ndarray, int)
+def resizeImage(image, percent):
+	width = int(image.shape[0] * percent / 100)
+	height = int(image.shape[1] * percent / 100)
+	dimension = (width, height)
+	resized_image = cv2.resize(src = image,dsize = dimension,interpolation = cv2.INTER_CUBIC)
+	return resized_image
 
-#####################################################################
-# converting 40 percent
-# scale_percent = 40
-# width = int(image.shape[1] * scale_percent / 100)
-# height = int(image.shape[0] * scale_percent / 100)
-# dimension = (width, height)
+@dispatch(np.ndarray, int, int)
+def resizeImage(image, width, height):
+	dimension = (width, height)
+	resized_image = cv2.resize(src = image,dsize = dimension,interpolation = cv2.INTER_CUBIC)
+	return resized_image
 
-# _40_percent_image =  cv2.resize(image, dimension,cv2.INTER_CUBIC)
-
-# print('40 percent of dimensions: ', _40_percent_image.shape)
-# cv2.imshow('_40_percent_image', _40_percent_image)
-# cv2.imwrite('40_percent_image.jpg', _40_percent_image)
+# image = resizeImage(image, 200, 200)
+# cv2.imshow("image 20 percen", image)
 
 #####################################################################
 #image rotation
-# rows,cols = image.shape[:2] 
-#(col/2,rows/2) is the center of rotation for the image 
-# M is the cordinates of the center 
-# M = cv2.getRotationMatrix2D((cols/2,rows/2),180,0.5) 
-# dst = cv2.warpAffine(image,M,(cols,rows)) 
-# cv2.imshow('dst', dst)
+def rotateImage(image, angle, scale):
+	width, height = image.shape[:2]
+	dimension = (width, height)
+	center = (width/2, height/2)
+	rotate_matrix = cv2.getRotationMatrix2D(center = center, angle = angle, scale = scale) 
+	rotated_image = cv2.warpAffine(src = image, M = rotate_matrix, dsize = dimension)
+	return rotated_image
+
+# image_rotation = rotateImage(image, 45, 0.5)
+# cv2.imshow("image_rotation", image_rotation)
 
 #####################################################################
 # image translation
@@ -91,8 +80,7 @@ image = cv2.imread('index.jpg')
 # pts2 = np.float32([[0,0],[300,0],[0,300],[300,300]])
 
 # M = cv2.getPerspectiveTransform(pts1, pts2)
-
-# image_perspective = cv2.warpPerspective(image, M, (300, 300	))
+# image_perspective = cv2.warpPerspective(image, M, (300, 300))
 
 # plt.subplot(121), plt.imshow(image), plt.title('Input')
 # plt.subplot(122), plt.imshow(image_affine), plt.title('Output')
@@ -142,14 +130,14 @@ image = cv2.imread('index.jpg')
 
 #####################################################################
 # Otsu's Binarization
-image = cv2.imread('index.jpg')
+# image = cv2.imread('index.jpg')
 
-gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # global thresholding
-ret1,th1 = cv2.threshold(gray_image,127,255,cv2.THRESH_BINARY)
+# ret1,th1 = cv2.threshold(gray_image,127,255,cv2.THRESH_BINARY)
 
 # Otsu's thresholding 
-ret2,th2 = cv2.threshold(gray_image,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+# ret2,th2 = cv2.threshold(gray_image,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 #Otsu's thresholding after Gaussian filtering
 # blur = cv2.GaussianBlur(gray_image, (5,5) , 0)
@@ -197,8 +185,8 @@ plt.xticks([]), plt.yticks([])
 plt.subplot(122), plt.imshow(blur),
 # plt.title('Blured')
 plt.title('Blured Gauss')
-plt.xticks([]), plt.yticks([])
-plt.show()
+# plt.xticks([]), plt.yticks([])
+# plt.show()
 
 #####################################################################
 

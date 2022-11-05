@@ -14,6 +14,5 @@ print(array_double[:,:,2])
 
 width, height, channels = image.shape
 
-print('Image revolution: ', width, 'x', height, '\tColor: ', channels)
-
+print('Image resolution: ', width, 'x', height, '\tColor: ', channels)
 cv.waitKey(0)
