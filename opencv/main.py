@@ -1,10 +1,13 @@
 from multipledispatch import dispatch
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np 
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib import colors
+from collections import Counter
 import cv2
 
-image = cv2.imread('index.jpg')
-
+image = cv2.imread('landscape-color.jpg')
 #image saving
 def saveImage(image, file_name):
 	print("Save successfully!")
@@ -15,12 +18,14 @@ def saveImage(image, file_name):
 #convert image color
 def convertColorImage(image, channel):
 	if(channel == "GRAY"):
-		cvt_color_image = cv2.cvtColor(src = image, cv2.COLOR_BGR2GRAY)	
+		cvt_color_image = cv2.cvtColor(src = image, code = cv2.COLOR_BGR2GRAY)	
 	if(channel == "HSV"):
-		cvt_color_image = cv2.cvtColor(src = image, cv2.COLOR_BGR2HSV)
+		cvt_color_image = cv2.cvtColor(src = image, code = cv2.COLOR_BGR2HSV)
+	if(channel == "RGB"):
+		cvt_color_image = cv2.cvtColor(src = image, code = cv2.COLOR_BGR2RGB)
 	return cvt_color_image
 
-# gray_image = convertColorImage(image, "GRAY")
+# gray_image = convertColorImage(image, "HSV")
 # cv2.imshow("gray_image", gray_image)
 
 # Resize image
@@ -41,7 +46,6 @@ def resizeImage(image, width, height):
 # image = resizeImage(image, 200, 200)
 # cv2.imshow("image 20 percen", image)
 
-#####################################################################
 #image rotation
 def rotateImage(image, angle, scale):
 	width, height = image.shape[:2]
@@ -174,23 +178,97 @@ def rotateImage(image, angle, scale):
 # plt.subplot(122), plt.imshow(dst), plt.title('Averaging')
 # plt.xticks([]), plt.yticks([])
 # plt.show()
-#####################################################################
+
 # blured
-image = cv2.imread('landscape-color.jpg')
-# blur = cv2.blur(image, (5,5))
-blur = cv2.GaussianBlur(image, (5,5),0)
+def displayImage(image, subplot, title):
+	cvt_color_image = convertColorImage(image, "RGB")
+	plt.subplot(subplot), plt.imshow(cvt_color_image), plt.title(title)
+	plt.xticks([]), plt.yticks([])
 
-plt.subplot(121), plt.imshow(image), plt.title('Original')
-plt.xticks([]), plt.yticks([])
-plt.subplot(122), plt.imshow(blur),
-# plt.title('Blured')
-plt.title('Blured Gauss')
-# plt.xticks([]), plt.yticks([])
-# plt.show()
+def displayTwiceImages(image1, subplot1, title1, image2, subplot2, title2):
+	displayImage(image1, subplot1, title1)
+	displayImage(image2, subplot2, title2)	
+	plt.show()
 
-#####################################################################
+def displayImages(images = [], subplots = [], titles = []):
+	for i in range(len(images)):
+		displayImage(images[i], subplots[i], titles[i])
+	plt.show()
 
-#####################################################################
+def drawSpectrum(image, subplot, title):
+	image_tmp = convertColorImage(image, "GRAY")
+	array = []
+	for i in range(0,image_tmp.shape[0]):
+		for j in range(0,image_tmp.shape[1]):
+			pixel = image_tmp.item(i, j)
+			array.append(pixel)
+	labels, values = zip(*Counter(array).items())
+	width = 1
+	plt.subplot(subplot)
+	plt.bar(labels, values, width)
+	# plt.xlabel('Pixel values', fontsize=10)
+	# plt.ylabel('Quantity', fontsize=10)
+	plt.title(title, fontsize=10)
+
+def drawSpectrums(images = [], subplots = [], titles = []):
+	for i in range(len(images)):
+		drawSpectrum(images[i], subplots[i], titles[i])
+	plt.show()
+
+def visualizeRGB(image, title):
+	r, g, b = cv2.split(image)
+	fig = plt.figure()
+	axis = fig.add_subplot(1, 1, 1, projection="3d")
+
+	pixel_colors = image.reshape((np.shape(image)[0]*np.shape(image)[1], 3))
+	norm = colors.Normalize(vmin=-1.,vmax=1.)
+	norm.autoscale(pixel_colors)
+	pixel_colors = norm(pixel_colors).tolist()
+
+	axis.scatter(r.flatten(), g.flatten(), b.flatten(), facecolors=pixel_colors, marker=".")
+	axis.set_xlabel("Red")
+	axis.set_ylabel("Green")
+	axis.set_zlabel("Blue")
+	plt.title(title)
+
+def visualizeRGBs(images = [], titles = []):
+	for i in range(len(images)):
+		visualizeRGB(images[i], titles[i])
+	plt.show()
+
+def main():
+	image = cv2.imread('image-noise.jpg')
+	width,height = image.shape[:2]
+	
+	kernel_size = (3,3)
+	kernel = np.ones(kernel_size, np.float32)/(kernel_size[0] * kernel_size[1])
+	gaussian_kernel = cv2.getGaussianKernel(ksize = 9, sigma = 5)
+
+	gaussian_pyramid = cv2.pyrDown(src = image)
+	blur = cv2.blur(src = image, ksize = kernel_size)
+	median_blur = cv2.medianBlur(src = image, ksize = 5)
+	laplacian_filter = cv2.Laplacian(src = image, ddepth = -1)
+	filter2D = cv2.filter2D(src = image, ddepth = -1, kernel = kernel)
+	box_filter = cv2.boxFilter(src = image, ddepth = -1, ksize = kernel_size, normalize=False)	
+	gaussian_blur = cv2.GaussianBlur(src = image, ksize = kernel_size, sigmaX = 0, sigmaY = 0)
+	bilateral_filter = cv2.bilateralFilter(src = image, d = 5,  sigmaColor = 75, sigmaSpace = 75)
+
+	images = [image, blur, gaussian_blur, median_blur, box_filter, bilateral_filter, filter2D, laplacian_filter, gaussian_pyramid]
+	subplots = [331,332,333,334,335,336,337,338,339]
+	titles = ["Origin Image", "Blur", "Gaussian blur", "Median blur", "Box filter", "Bilateral filter", "Filter2D", "Laplacian", "Gaussian pyramid"]
+
+	# displayImages(images, subplots, titles)
+	# drawSpectrums(images, subplots, titles)
+	
+	# images = [image, blur]
+	# titles = ["Origin", "Blur"]
+	# visualizeRGBs(images, titles)
+
+	# difference = cv2.subtract(image, blur)
+	# print(*difference[:,:,0])
+
+main()
+
 # key end cv2 running
 cv2.waitKey(0)
 cv2.destroyAllWindows()
