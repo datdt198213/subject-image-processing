@@ -25,3 +25,21 @@ plt.bar(labels, values, width)
 plt.xlabel('Pixel values')
 plt.ylabel('Quantity')
 plt.show()
+
+def drawSpectrum(image, subplot, title):
+	image_tmp = convertColorImage(image, "GRAY")
+	array = []
+	for i in range(0,image_tmp.shape[0]):
+		for j in range(0,image_tmp.shape[1]):
+			pixel = image_tmp.item(i, j)
+			array.append(pixel)
+	labels, values = zip(*Counter(array).items())
+	width = 1
+	plt.subplot(subplot)
+	plt.bar(labels, values, width)
+	plt.title(title, fontsize=10)
+
+def drawSpectrums(images = [], subplots = [], titles = []):
+	for i in range(len(images)):
+		drawSpectrum(images[i], subplots[i], titles[i])
+	plt.show()
