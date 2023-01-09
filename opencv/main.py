@@ -285,8 +285,8 @@ def main():
     # display_color_images_conversion(image)
     # display_resize_images(image, 50, (200,200), "Scale 50%", "200x200")
     # display_negative_image(image)
-    # display_equalized_histogram(image)
-    # display_histogram_matching(image)
+    display_equalized_histogram(image)
+    display_histogram_matching(image)
 
     # enhance_linear_contrast(image, 2, -5)
     # enhance_non_linear_contrast(image, 40.0, (8,8))
@@ -314,9 +314,9 @@ def main():
     # display_thresholding(image)
     # display_adaptive_thresholding(image)
 
-    x7_image = cv2.imread("x7_image.png")
-    enhance_gamma_power_law(x7_image, 0.1, 1.0)
-    display_histogram(x7_image, "x7_image", "title")
+    # x7_image = cv2.imread("x7_image.png")
+    # enhance_gamma_power_law(x7_image, 0.1, 1.0)
+    # display_histogram(x7_image, "x7_image", "title")
 
 
 main()
@@ -327,7 +327,7 @@ cv2.destroyAllWindows()
 
 
 # image rotation
-def rotateImage(image, angle, scale):
+def rotate_image(image, angle, scale):
     width, height = image.shape[:2]
     dimension = (width, height)
     center = (width / 2, height / 2)
